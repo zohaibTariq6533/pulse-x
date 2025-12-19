@@ -34,5 +34,11 @@ Route::middleware(['isUserValid'])->group(function(){
 
     Route::get('personalized-workout/gym/ppl-workout',[WorkoutController::class,'pplWorkoutPage'])->name('pplWorkoutPage');
     Route::get('personalized-workout/my-workouts/{day?}',[WorkoutController::class,'workouts'])->name('workoutsPage');
+    
+    // All workouts - muscle groups
+    Route::get('all-workouts/muscle-groups',[WorkoutController::class,'muscleGroupsPage'])->name('muscleGroupsPage');
+    Route::get('all-workouts/exercises/{bodyPart}',[WorkoutController::class,'singleMusclePage'])->name('singleMusclePage');
+    Route::get('all-workouts/exercise-detail/{exerciseId}',[WorkoutController::class,'exerciseDetailPage'])->name('exerciseDetailPage');
+    Route::get('all-workouts/exercise-image/{exerciseId}',[WorkoutController::class,'exerciseImage'])->name('exerciseImage');
 });
 

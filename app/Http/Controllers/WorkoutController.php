@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Response;
 
 class WorkoutController extends Controller
 {
@@ -208,5 +210,141 @@ class WorkoutController extends Controller
         }
         
         return view('myworkout.workouts.workouts', compact('workoutData', 'dayName'));
+    }
+
+    public function muscleGroupsPage(){
+        return view('all-workouts.muscle-group-page-1');
+    }
+
+    public function singleMusclePage($bodyPart){
+        // Map display names to API body part names
+        $bodyPartMap = [
+            'chest' => 'chest',
+            'back' => 'back',
+            'shoulders' => 'shoulders',
+            'upper-arms' => 'upper arms',
+            'lower-arms' => 'lower arms',
+            'upper-legs' => 'upper legs',
+            'lower-legs' => 'lower legs',
+            'waist' => 'waist',
+            'cardio' => 'cardio',
+            'neck' => 'neck',
+        ];
+
+        // Get the API body part name
+        $apiBodyPart = $bodyPartMap[$bodyPart] ?? $bodyPart;
+        
+        // Display name for the page title
+        $displayNames = [
+            'chest' => 'Chest',
+            'back' => 'Back',
+            'shoulders' => 'Shoulders',
+            'upper-arms' => 'Bicep & Tricep',
+            'lower-arms' => 'Forearms',
+            'upper-legs' => 'Legs',
+            'lower-legs' => 'Calves',
+            'waist' => 'Abs',
+        ];
+        $displayName = $displayNames[$bodyPart] ?? ucfirst($bodyPart);
+
+        try {
+            // Call ExerciseDB API
+            $response = Http::withHeaders([
+                'X-RapidAPI-Key' => env('EXCERCISE_API_KEY'),
+                'X-RapidAPI-Host' => env('EXCERCISE_API_Host'),
+            ])->get("https://exercisedb.p.rapidapi.com/exercises/bodyPart/{$apiBodyPart}", [
+                'limit' => 50,
+            ]);
+
+            if ($response->successful()) {
+                $exercises = $response->json();
+            } else {
+                $exercises = [];
+            }
+        } catch (\Exception $e) {
+            $exercises = [];
+        }
+
+        return view('all-workouts.single-muscle', compact('exercises', 'displayName', 'bodyPart'));
+    }
+
+    public function exerciseDetailPage($exerciseId){
+        try {
+            // Call ExerciseDB API to get single exercise by ID
+            $response = Http::withHeaders([
+                'X-RapidAPI-Key' => env('EXCERCISE_API_KEY'),
+                'X-RapidAPI-Host' => env('EXCERCISE_API_Host'),
+            ])->get("https://exercisedb.p.rapidapi.com/exercises/exercise/{$exerciseId}");
+
+            if ($response->successful()) {
+                $exercise = $response->json();
+                
+                // Format exercise ID with leading zeros (e.g., 9 -> 0009)
+                $formattedId = str_pad($exerciseId, 4, '0', STR_PAD_LEFT);
+                
+                // Use proxy route for image (which will handle headers)
+                $imageUrl = route('exerciseImage', $formattedId);
+                
+                // Map API body part names back to URL-friendly format for back button
+                $reverseBodyPartMap = [
+                    'chest' => 'chest',
+                    'back' => 'back',
+                    'shoulders' => 'shoulders',
+                    'upper arms' => 'upper-arms',
+                    'lower arms' => 'lower-arms',
+                    'upper legs' => 'upper-legs',
+                    'lower legs' => 'lower-legs',
+                    'waist' => 'waist',
+                    'cardio' => 'cardio',
+                    'neck' => 'neck',
+                ];
+                
+                $bodyPartSlug = $reverseBodyPartMap[$exercise['bodyPart']] ?? str_replace(' ', '-', strtolower($exercise['bodyPart']));
+            } else {
+                $exercise = null;
+                $bodyPartSlug = null;
+                $imageUrl = null;
+            }
+        } catch (\Exception $e) {
+            $exercise = null;
+            $bodyPartSlug = null;
+            $imageUrl = null;
+        }
+
+        return view('all-workouts.muscle-detail', compact('exercise', 'bodyPartSlug', 'imageUrl'));
+    }
+
+    public function exerciseImage($exerciseId){
+        try {
+            // Format exercise ID with leading zeros if needed
+            $formattedId = str_pad($exerciseId, 4, '0', STR_PAD_LEFT);
+            
+            // Fetch image from ExerciseDB API with headers
+            $response = Http::withHeaders([
+                'X-RapidAPI-Key' => env('EXCERCISE_API_KEY'),
+                'X-RapidAPI-Host' => env('EXCERCISE_API_Host'),
+            ])->get("https://exercisedb.p.rapidapi.com/image", [
+                'resolution' => 180,
+                'exerciseId' => $formattedId,
+            ]);
+
+            if ($response->successful()) {
+                // Get the image content
+                $imageContent = $response->body();
+                
+                // Determine content type from response headers
+                $contentType = $response->header('Content-Type') ?? 'image/gif';
+                
+                // Return image with proper headers
+                return response($imageContent, 200)
+                    ->header('Content-Type', $contentType)
+                    ->header('Cache-Control', 'public, max-age=3600');
+            } else {
+                // Return 404 if image not found
+                abort(404);
+            }
+        } catch (\Exception $e) {
+            abort(404);
+        }
     }
 }

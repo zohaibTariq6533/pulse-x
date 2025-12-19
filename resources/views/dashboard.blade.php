@@ -125,12 +125,12 @@
             <h2 class="text-xl font-bold">Quick Actions</h2>
             <div class="grid grid-cols-2 gap-4">
                 {{-- Workout Card --}}
-                <div class="p-4 rounded-2xl border border-white border-opacity-20  bg-opacity-[0.10] flex flex-col items-center justify-center space-y-2 cursor-pointer hover:bg-opacity-15 transition">
+                <a href="{{ route('muscleGroupsPage') }}" class="p-4 rounded-2xl border border-white border-opacity-20  bg-opacity-[0.10] flex flex-col items-center justify-center space-y-2 cursor-pointer hover:bg-opacity-15 transition">
                     <div class="p-3 rounded-full" style="background-color: #6C63FF1A;">
                         <svg class="w-8 h-8" fill="none" stroke="#6C63FF" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
                     </div>
                     <p class="text-sm font-semibold">Workout</p>
-                </div>
+                </a>
                 {{-- Meal Logger Card --}}
                 <div class="p-4 rounded-2xl border border-white border-opacity-20  bg-opacity-[0.10] flex flex-col items-center justify-center space-y-2 cursor-pointer hover:bg-opacity-15 transition">
                     <div class="p-3 rounded-full" style="background-color: #4CAF501A;">
@@ -256,7 +256,7 @@
             <span class="text-xs mt-1 font-semibold">Home</span>
         </a>
         {{-- Workout --}}
-        <a href="#" class="flex flex-col items-center text-center transition" style="color: rgba(255, 255, 255, 0.5);">
+        <a href="{{ route('muscleGroupsPage') }}" class="flex flex-col items-center text-center transition" style="color: rgba(255, 255, 255, 0.5);">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
             <span class="text-xs mt-1">Workout</span>
         </a>
