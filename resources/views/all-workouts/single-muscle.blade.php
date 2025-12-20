@@ -21,7 +21,7 @@
         @endif
 
         {{-- Exercises List --}}
-        <section class="space-y-4 pb-20">
+        <section class="space-y-4 pb-20" id="exercises-list">
             @forelse($exercises as $exercise)
                 <a href="{{ route('exerciseDetailPage', $exercise['id']) }}" class="block relative overflow-hidden rounded-2xl border border-white border-opacity-20 transition-all hover:scale-[1.01] hover:shadow-xl cursor-pointer"
                    style="background: linear-gradient(135deg, rgba(229, 229, 229, 0.15), rgba(229, 229, 229, 0.05)); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
@@ -142,4 +142,36 @@
         </a>
     </nav>
 </footer>
+
+{{-- Loading Skeleton Styles --}}
+<style>
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+    
+    .skeleton {
+        background: linear-gradient(90deg, 
+            rgba(255, 255, 255, 0.05) 0%, 
+            rgba(255, 255, 255, 0.1) 50%, 
+            rgba(255, 255, 255, 0.05) 100%);
+        background-size: 1000px 100%;
+        animation: shimmer 2s infinite;
+    }
+</style>
+
+<script>
+    // Show loading skeleton while page is loading (if needed for future client-side fetching)
+    document.addEventListener('DOMContentLoaded', function() {
+        // If exercises are already loaded, hide any loading states
+        const exercisesList = document.getElementById('exercises-list');
+        if (exercisesList && exercisesList.children.length > 0) {
+            // Content is already loaded, no need for skeleton
+        }
+    });
+</script>
 @endsection

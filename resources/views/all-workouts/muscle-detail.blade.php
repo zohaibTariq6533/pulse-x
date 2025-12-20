@@ -22,13 +22,17 @@
             @if($imageUrl)
                 <div class="mb-6 rounded-2xl overflow-hidden border border-white border-opacity-20">
                     <div class="w-full h-64 bg-black bg-opacity-30 flex items-center justify-center relative">
+                        {{-- Loading Skeleton --}}
+                        <div id="image-skeleton" class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 border-4 border-white border-opacity-20 border-t-white rounded-full animate-spin"></div>
+                        </div>
                         <img src="{{ $imageUrl }}" 
                              alt="{{ $exercise['name'] }}" 
-                             class="w-full h-full object-contain"
-                             loading="lazy"
+                             class="w-full h-full object-contain opacity-0 transition-opacity duration-300"
                              style="max-width: 100%; max-height: 100%;"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="hidden absolute inset-0 items-center justify-center text-white opacity-50">
+                             onload="this.classList.remove('opacity-0'); this.classList.add('opacity-100'); document.getElementById('image-skeleton').style.display='none';"
+                             onerror="this.style.display='none'; document.getElementById('image-skeleton').style.display='none'; document.getElementById('image-error').style.display='flex';">
+                        <div id="image-error" class="hidden absolute inset-0 items-center justify-center text-white opacity-50">
                             <p class="text-sm">Image not available</p>
                         </div>
                     </div>
@@ -165,4 +169,17 @@
         </a>
     </nav>
 </footer>
+
+{{-- Loading Animation Styles --}}
+<style>
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+</style>
 @endsection
