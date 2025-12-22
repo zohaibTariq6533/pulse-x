@@ -25,15 +25,17 @@
         {{-- Workout Split Cards --}}
         <div class="space-y-4 flex flex-col items-center justify-center flex-1">
             
-            {{-- Push Pull Legs Card (Priority/Glowing) --}}
-            <a href="{{ route('workoutIntensityPage', ['type' => 'ppl']) }}" class="block">
+            {{-- Push Pull Legs Card --}}
+            <a href="{{ route('workoutIntensityPage', ['type' => 'ppl']) }}" class="block w-full">
                 <div class="p-6 rounded-xl border-2 cursor-pointer transition-all hover:scale-[1.02] min-h-[140px] flex flex-col justify-between w-full"
-                     style="background: linear-gradient(135deg, rgba(229, 229, 229, 0.15), rgba(229, 229, 229, 0.05)); border-color: rgba(255, 182, 123, 0.6);">
+                     style="background: linear-gradient(135deg, rgba(229, 229, 229, 0.15), rgba(229, 229, 229, 0.05)); border-color: {{ $goesToGym ? 'rgba(255, 182, 123, 0.6)' : 'rgba(229, 229, 229, 0.3)' }};">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-2">
                                 <h3 class="text-xl font-bold">Push Pull Legs</h3>
-                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background-color: rgba(255, 182, 123, 0.3); color: #feb47b;">Recommended</span>
+                                @if($goesToGym)
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background-color: rgba(255, 182, 123, 0.3); color: #feb47b;">Recommended</span>
+                                @endif
                             </div>
                             <p class="text-sm opacity-90 leading-relaxed">Train pushing muscles, pulling muscles, and legs on separate days for balanced development.</p>
                         </div>
@@ -46,14 +48,19 @@
                 </div>
             </a>
 
-            {{-- Bro Split Card --}}
-            <a href="{{ route('workoutIntensityPage', ['type' => 'bro']) }}" class="block">
+            {{-- Bro Split Card (Recommended for non-gym users) --}}
+            <a href="{{ route('workoutIntensityPage', ['type' => 'bro']) }}" class="block w-full">
                 <div class="p-6 rounded-xl border-2 cursor-pointer transition-all hover:scale-[1.02] min-h-[140px] flex flex-col justify-between w-full"
-                     style="background: linear-gradient(135deg, rgba(229, 229, 229, 0.15), rgba(229, 229, 229, 0.05)); border-color: rgba(229, 229, 229, 0.3);">
+                     style="background: linear-gradient(135deg, rgba(229, 229, 229, 0.15), rgba(229, 229, 229, 0.05)); border-color: {{ !$goesToGym ? 'rgba(255, 182, 123, 0.6)' : 'rgba(229, 229, 229, 0.3)' }};">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <h3 class="text-xl font-bold mb-2">Bro Split</h3>
-                            <p class="text-sm opacity-80 leading-relaxed">Focus on one muscle group per day for maximum intensity and recovery time.</p>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <h3 class="text-xl font-bold">Bro Split</h3>
+                                @if(!$goesToGym)
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background-color: rgba(255, 182, 123, 0.3); color: #feb47b;">Recommended</span>
+                                @endif
+                            </div>
+                            <p class="text-sm opacity-80 leading-relaxed">Focus on one muscle group per day for maximum intensity and recovery time. Ideal for home workouts.</p>
                         </div>
                         <div class="ml-4 shrink-0">
                             <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

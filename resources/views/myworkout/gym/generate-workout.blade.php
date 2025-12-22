@@ -60,15 +60,49 @@
 
             {{-- Action Buttons --}}
             <div class="flex flex-col space-y-3 w-full">
-                <button class="w-full py-3 px-6 rounded-xl font-semibold text-white transition-all hover:scale-[1.02]"
-                        style="background: linear-gradient(135deg, #feb47b, #ff7e5f);">
-                    Generate Workout
-                </button>
-                <button class="w-full py-3 px-6 rounded-xl font-semibold text-white transition-all hover:scale-[1.02] border-2"
+                <form action="{{ route('generateWorkout') }}" method="POST" id="generateWorkoutForm">
+                    @csrf
+                    <button type="submit" id="generateBtn" class="w-full py-3 px-6 rounded-xl font-semibold text-white transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                            style="background: linear-gradient(135deg, #feb47b, #ff7e5f);">
+                        <span id="generateBtnText">Generate Workout</span>
+                        <span id="generateBtnLoading" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Generating...
+                        </span>
+                    </button>
+                </form>
+                <a href="{{ route('workoutTypePage') }}" class="w-full py-3 px-6 rounded-xl font-semibold text-white transition-all hover:scale-[1.02] border-2 text-center"
                         style="border-color: rgba(229, 229, 229, 0.3); background: rgba(229, 229, 229, 0.1);">
                     Cancel
-                </button>
+                </a>
             </div>
+
+            {{-- Error/Success Messages --}}
+            @if(session('error'))
+                <div class="mt-4 p-4 rounded-xl bg-red-500 bg-opacity-20 border border-red-500 border-opacity-30 text-red-200 text-sm">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="mt-4 p-4 rounded-xl bg-green-500 bg-opacity-20 border border-green-500 border-opacity-30 text-green-200 text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <script>
+                document.getElementById('generateWorkoutForm').addEventListener('submit', function(e) {
+                    const btn = document.getElementById('generateBtn');
+                    const btnText = document.getElementById('generateBtnText');
+                    const btnLoading = document.getElementById('generateBtnLoading');
+                    
+                    btn.disabled = true;
+                    btnText.classList.add('hidden');
+                    btnLoading.classList.remove('hidden');
+                });
+            </script>
         </div>
 
     </div>

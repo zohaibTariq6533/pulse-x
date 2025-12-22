@@ -23,8 +23,8 @@
         {{-- Exercises List --}}
         <section class="space-y-4 pb-20" id="exercises-list">
             @forelse($exercises as $exercise)
-                <a href="{{ route('exerciseDetailPage', $exercise['id']) }}" class="block relative overflow-hidden rounded-2xl border border-white border-opacity-20 transition-all hover:scale-[1.01] hover:shadow-xl cursor-pointer"
-                   style="background: linear-gradient(135deg, rgba(229, 229, 229, 0.15), rgba(229, 229, 229, 0.05)); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <a href="{{ route('exerciseDetailPage', $exercise['id']) }}" class="block relative overflow-hidden rounded-lg border-2 transition-all hover:scale-[1.01] hover:shadow-xl cursor-pointer group"
+                   style="background: linear-gradient(135deg, rgba(254, 180, 123, 0.1), rgba(229, 229, 229, 0.05)); border-color: rgba(254, 180, 123, 0.3); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     
                     {{-- Exercise GIF --}}
                     {{-- <div class="w-full h-48 bg-black bg-opacity-30 flex items-center justify-center overflow-hidden">
@@ -43,20 +43,14 @@
                         <div class="flex flex-wrap gap-2">
                             {{-- Target Muscle --}}
                             <span class="px-3 py-1 rounded-full text-xs font-medium capitalize"
-                                  style="background: rgba(255, 107, 107, 0.2); color: #FF6B6B;">
+                                  style="background: rgba(254, 180, 123, 0.2); color: #feb47b; border: 1px solid rgba(254, 180, 123, 0.3);">
                                 {{ $exercise['target'] }}
                             </span>
                             
                             {{-- Equipment --}}
                             <span class="px-3 py-1 rounded-full text-xs font-medium capitalize"
-                                  style="background: rgba(108, 99, 255, 0.2); color: #6C63FF;">
+                                  style="background: rgba(254, 180, 123, 0.2); color: #feb47b; border: 1px solid rgba(254, 180, 123, 0.3);">
                                 {{ $exercise['equipment'] }}
-                            </span>
-                            
-                            {{-- Body Part --}}
-                            <span class="px-3 py-1 rounded-full text-xs font-medium capitalize"
-                                  style="background: rgba(76, 175, 80, 0.2); color: #4CAF50;">
-                                {{ $exercise['bodyPart'] }}
                             </span>
                         </div>
 
@@ -75,25 +69,36 @@
                             </div>
                         @endif
 
-                        {{-- Instructions (Collapsible) --}}
-                        @if(!empty($exercise['instructions']))
-                            <details class="pt-2">
-                                <summary class="text-sm font-medium cursor-pointer hover:opacity-80 transition flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    View Instructions
-                                </summary>
-                                <ol class="mt-3 space-y-2 text-sm opacity-90 pl-4">
-                                    @foreach($exercise['instructions'] as $index => $instruction)
-                                        <li class="flex gap-2">
-                                            <span class="text-xs font-bold opacity-50">{{ $index + 1 }}.</span>
-                                            <span>{{ $instruction }}</span>
-                                        </li>
-                                    @endforeach
-                                </ol>
-                            </details>
-                        @endif
+                        {{-- Instructions and Arrow --}}
+                        <div class="flex items-center justify-end pt-2 gap-3">
+                            @if(!empty($exercise['instructions']))
+                                <details>
+                                    <summary class="text-sm font-medium cursor-pointer hover:opacity-80 transition inline-flex items-center gap-2 px-4 py-2 rounded-lg"
+                                             style="background: rgba(254, 180, 123, 0.2); color: #feb47b; border: 1px solid rgba(254, 180, 123, 0.4);">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        View Instructions
+                                    </summary>
+                                    <ol class="mt-3 space-y-2 text-sm opacity-90 pl-4 absolute z-10 p-4 rounded-lg border"
+                                        style="background: rgba(26, 26, 46, 0.95); border-color: rgba(254, 180, 123, 0.3); backdrop-filter: blur(10px);">
+                                        @foreach($exercise['instructions'] as $index => $instruction)
+                                            <li class="flex gap-2">
+                                                <span class="text-xs font-bold opacity-50">{{ $index + 1 }}.</span>
+                                                <span>{{ $instruction }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ol>
+                                </details>
+                            @endif
+                            
+                            {{-- Arrow Indicator --}}
+                            <div class="flex items-center group-hover:translate-x-1 transition-transform">
+                                <svg class="w-6 h-6" style="color: #feb47b;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </a>
             @empty
@@ -114,34 +119,6 @@
     </div>
 </main>
 
-{{-- Bottom Navigation Bar --}}
-<footer class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-10 p-2"
-        style="background-color: transparent;">
-    <nav class="flex justify-around py-3 rounded-t-2xl border border-opacity-10 shadow-2xl"
-         style="background-color: #1a1a2e; border-color: rgba(255, 255, 255, 0.1);">
-        
-        {{-- Home --}}
-        <a href="{{ route('dashboard') }}" class="flex flex-col items-center text-center transition" style="color: rgba(255, 255, 255, 0.5);">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-            <span class="text-xs mt-1">Home</span>
-        </a>
-        {{-- Workout --}}
-        <a href="{{ route('muscleGroupsPage') }}" class="flex flex-col items-center text-center transition" style="color: #feb47b;">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-            <span class="text-xs mt-1 font-semibold">Workout</span>
-        </a>
-        {{-- Meals --}}
-        <a href="#" class="flex flex-col items-center text-center transition" style="color: rgba(255, 255, 255, 0.5);">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            <span class="text-xs mt-1">Meals</span>
-        </a>
-        {{-- Profile --}}
-        <a href="#" class="flex flex-col items-center text-center transition" style="color: rgba(255, 255, 255, 0.5);">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            <span class="text-xs mt-1">Profile</span>
-        </a>
-    </nav>
-</footer>
 
 {{-- Loading Skeleton Styles --}}
 <style>

@@ -81,7 +81,7 @@
                                 placeholder="First Name"
                                 required
                                 value="{{ old('first_name') }}"
-                                class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
+                                class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-md text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
                             />
                         </div>
                     </label>
@@ -102,7 +102,7 @@
                                 placeholder="Email"
                                 required
                                 value="{{ old('email') }}"
-                                class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
+                                class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-md text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
                             />
                         </div>
                     </label>
@@ -123,7 +123,7 @@
                                 id="password"
                                 placeholder="Password"
                                 required
-                                class="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
+                                class="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/20 rounded-md text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
                             />
                             <button 
                                 type="button"

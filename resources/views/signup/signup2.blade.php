@@ -77,7 +77,7 @@
                         </div>
                         <select 
                             name="gender" 
-                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all appearance-none"
+                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all appearance-none"
                         >
                             <option value="" class="bg-[#2C5364] text-white">Select Gender</option>
                             <option value="male" class="bg-[#2C5364] text-white" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
@@ -107,7 +107,7 @@
                             min="1"
                             max="120"
                             value="{{ old('age') }}"
-                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
+                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-md text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
                         />
                     </div>
                 </div>
@@ -129,7 +129,7 @@
                             min="50"
                             max="250"
                             value="{{ old('height') }}"
-                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
+                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-md text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
                         />
                     </div>
                 </div>
@@ -151,7 +151,7 @@
                             min="20"
                             max="300"
                             value="{{ old('weight') }}"
-                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
+                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-md text-white placeholder-white/50 focus:outline-none focus:border-[#FF8E53] focus:ring-2 focus:ring-[#FF8E53] transition-all"
                         />
                     </div>
                 </div>

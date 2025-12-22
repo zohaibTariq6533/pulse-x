@@ -15,6 +15,8 @@
     <body class="min-h-screen">
     @yield('content')
 
+    {{-- Bottom Navigation --}}
+    @include('partials.bottom-nav')
 
     <script>
         function togglePassword() {

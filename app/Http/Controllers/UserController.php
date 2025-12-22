@@ -192,12 +192,15 @@ class UserController extends Controller
                 $fat_goal=null;
                 $goalCalories = $currentCalories + $caloriesGap;
                 if($goes_to_gym===1){
-                    $protein_goal=1.5*$weight;
-                    $fat_goal=(($goalCalories/100)*25)/9;
+                    // Gym users: Higher protein (1.5g per kg), 25% calories from fat
+                    $protein_goal = 1.5 * $weight;
+                    $fat_goal = ($goalCalories * 0.25) / 9; // 25% of calories, convert to grams (fat = 9 cal/g)
                 }else{
-                    $protein_goal=0.8*$weight;
-                    $fat_goal=($goalCalories/100)*30;
+                    // Non-gym users: Standard protein (0.8g per kg), 30% calories from fat
+                    $protein_goal = 0.8 * $weight;
+                    $fat_goal = ($goalCalories * 0.30) / 9; // 30% of calories, convert to grams (fat = 9 cal/g)
                 }
+                // Carbs = remaining calories after protein and fat, divided by 4 (carbs = 4 cal/g)
                 $carbs = ($goalCalories - ($protein_goal * 4) - ($fat_goal * 9)) / 4;
 
                 

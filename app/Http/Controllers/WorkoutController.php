@@ -7,11 +7,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Response;
+use App\Services\WorkoutGenerationService;
 
 class WorkoutController extends Controller
 {
     public function workoutTypePage(){
-        return view('myworkout.gym.workout-type');
+        // Get user gym status
+        $user = DB::table('users')->where('id', Auth::id())->select('goes_to_gym')->first();
+        $goesToGym = $user->goes_to_gym == 1 || $user->goes_to_gym == true;
+        
+        return view('myworkout.gym.workout-type', compact('goesToGym'));
     }
 
     public function workoutIntensityPage($type){
@@ -34,15 +39,6 @@ class WorkoutController extends Controller
     public function createWorkoutPlanPage($intensity){
         // Store intensity in session
         session(['workout_intensity' => $intensity]);
-        
-        // Insert workout plan
-        DB::table('workout_plans')->insert([
-            'user_id'=>Auth::id(),
-            'type'=>session('workout_type'),
-            'intensity'=>$intensity,
-            'created_at'=>now(),
-            'updated_at'=>now(),
-        ]);
 
         // Get user details (use first() to get single object instead of collection)
         $userDetail=DB::table('users')->where('id',Auth::id())->first();
@@ -55,6 +51,83 @@ class WorkoutController extends Controller
         
         return view('myworkout.gym.generate-workout',compact('userDetail','workoutData'));
         
+    }
+
+    /**
+     * Generate personalized workout plan
+     */
+    public function generateWorkout(Request $request){
+        try {
+            $workoutType = session('workout_type');
+            $intensity = session('workout_intensity');
+            
+            if (!$workoutType || !$intensity) {
+                return redirect()->route('workoutTypePage')
+                    ->with('error', 'Please select workout type and intensity first.');
+            }
+
+            // Get user details
+            $userDetail = DB::table('users')->where('id', Auth::id())->first();
+            
+            if (!$userDetail) {
+                return redirect()->route('dashboard')
+                    ->with('error', 'User not found.');
+            }
+
+            // Generate workout plan using service
+            $workoutService = new WorkoutGenerationService();
+            $workoutPlan = $workoutService->generateWorkoutPlan($userDetail, $workoutType, $intensity);
+
+            if (empty($workoutPlan)) {
+                return redirect()->back()
+                    ->with('error', 'Failed to generate workout plan. Please try again.');
+            }
+
+            // Store workout plan in database
+            $planId = DB::table('workout_plans')->insertGetId([
+                'user_id' => Auth::id(),
+                'type' => $workoutType,
+                'intensity' => $intensity,
+                'plan' => json_encode($workoutPlan),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Clear session data
+            session()->forget(['workout_type', 'workout_intensity', 'reccomended_intensity']);
+
+            return redirect()->route('showGeneratedWorkout', ['planId' => $planId])
+                ->with('success', 'Workout plan generated successfully!');
+
+        } catch (\Exception $e) {
+            \Log::error('Workout generation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'An error occurred while generating your workout plan. Please try again.');
+        }
+    }
+
+    /**
+     * Show generated workout plan
+     */
+    public function showGeneratedWorkout($planId){
+        $workoutPlan = DB::table('workout_plans')
+            ->where('id', $planId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$workoutPlan) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Workout plan not found.');
+        }
+
+        $plan = json_decode($workoutPlan->plan, true);
+        $userDetail = DB::table('users')->where('id', Auth::id())->first();
+
+        return view('myworkout.gym.generated-workout', compact('plan', 'workoutPlan', 'userDetail'));
     }
 
 
