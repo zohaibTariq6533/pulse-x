@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Diagnostics - Pulse-X</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #0F2027;
+            color: white;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .check-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #2C5364;
+        }
+        .success { border-color: #28a745; }
+        .error { border-color: #dc3545; }
+        .warning { border-color: #ffc107; }
+        h1 { margin-bottom: 20px; }
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Dashboard Diagnostics</h1>
+    <div id="results"></div>
+
+    <script>
+        const results = [];
+        
+        // Check 1: Chart.js
+        function checkChartJS() {
+            return new Promise((resolve) => {
+                if (typeof Chart !== 'undefined') {
+                    results.push({
+                        status: 'success',
+                        title: '✅ Chart.js Loaded',
+                        details: `Version: ${Chart.version || 'Unknown'}`
+                    });
+                } else {
+                    results.push({
+                        status: 'error',
+                        title: '❌ Chart.js Not Loaded',
+                        details: 'Chart.js CDN may be blocked or network issue'
+                    });
+                }
+                resolve();
+            });
+        }
+        
+        // Check 2: Vite Assets
+        function checkViteAssets() {
+            const viteScript = document.querySelector('script[src*="/build/assets/"]');
+            if (viteScript) {
+                results.push({
+                    status: 'success',
+                    title: '✅ Vite Assets',
+                    details: 'Vite scripts found'
+                });
+            } else {
+                results.push({
+                    status: 'warning',
+                    title: '⚠️ Vite Assets',
+                    details: 'Vite scripts not found. Make sure Vite dev server is running or assets are built.'
+                });
+            }
+        }
+        
+        // Check 3: Network Connectivity
+        function checkNetwork() {
+            fetch('/manifest.json')
+                .then(res => {
+                    if (res.ok) {
+                        results.push({
+                            status: 'success',
+                            title: '✅ Network Connection',
+                            details: 'Can reach server successfully'
+                        });
+                    } else {
+                        results.push({
+                            status: 'error',
+                            title: '❌ Network Connection',
+                            details: `Server returned: ${res.status}`
+                        });
+                    }
+                })
+                .catch(err => {
+                    results.push({
+                        status: 'error',
+                        title: '❌ Network Connection',
+                        details: `Error: ${err.message}`
+                    });
+                });
+        }
+        
+        // Check 4: Console Errors
+        function checkConsoleErrors() {
+            const originalError = console.error;
+            const errors = [];
+            console.error = function(...args) {
+                errors.push(args.join(' '));
+                originalError.apply(console, args);
+            };
+            
+            setTimeout(() => {
+                if (errors.length > 0) {
+                    results.push({
+                        status: 'error',
+                        title: '❌ Console Errors',
+                        details: `${errors.length} error(s) found. Check browser console.`
+                    });
+                } else {
+                    results.push({
+                        status: 'success',
+                        title: '✅ No Console Errors',
+                        details: 'No JavaScript errors detected'
+                    });
+                }
+                displayResults();
+            }, 2000);
+        }
+        
+        // Check 5: Viewport
+        function checkViewport() {
+            const viewport = {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                devicePixelRatio: window.devicePixelRatio
+            };
+            
+            results.push({
+                status: 'success',
+                title: '✅ Viewport',
+                details: `${viewport.width}x${viewport.height} (DPR: ${viewport.devicePixelRatio})`
+            });
+        }
+        
+        function displayResults() {
+            const container = document.getElementById('results');
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `check-item ${result.status}`;
+                div.innerHTML = `
+                    <h3>${result.title}</h3>
+                    <p style="margin-top: 5px; font-size: 14px; opacity: 0.9;">${result.details}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // Run checks
+        checkChartJS();
+        checkViteAssets();
+        checkNetwork();
+        checkViewport();
+        checkConsoleErrors();
+        
+        // Also try loading Chart.js if not loaded
+        if (typeof Chart === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+            script.onload = () => {
+                results.push({
+                    status: 'success',
+                    title: '✅ Chart.js Loaded (Retry)',
+                    details: 'Successfully loaded Chart.js on retry'
+                });
+                displayResults();
+            };
+            script.onerror = () => {
+                results.push({
+                    status: 'error',
+                    title: '❌ Chart.js Failed to Load',
+                    details: 'CDN may be blocked. Try using a different CDN or local file.'
+                });
+                displayResults();
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Icon Generator - Pulse-X</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2C5364; margin-bottom: 20px; }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        button {
+            background: #2C5364;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #1a3a47; }
+        .preview { margin: 20px 0; }
+        .preview canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 10px;
+            display: block;
+        }
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .instructions ol { margin-left: 20px; margin-top: 10px; }
+        .instructions li { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Quick Icon Generator</h1>
+        
+        <div class="info">
+            <p><strong>This will create the PWA icons you need!</strong></p>
+            <p>Click the button below to generate and download all icons.</p>
+        </div>
+
+        <div class="preview">
+            <canvas id="icon192" width="192" height="192"></canvas>
+            <canvas id="icon512" width="512" height="512"></canvas>
+            <canvas id="icon180" width="180" height="180"></canvas>
+        </div>
+
+        <button onclick="generateAndDownload()">Generate & Download All Icons</button>
+        
+        <div class="instructions">
+            <strong>📋 Instructions:</strong>
+            <ol>
+                <li>Click "Generate & Download All Icons" above</li>
+                <li>Three files will download automatically</li>
+                <li>Move the downloaded files to: <code>public/icons/</code> folder</li>
+                <li>Rename them to:
+                    <ul>
+                        <li><code>icon-192x192.png</code></li>
+                        <li><code>icon-512x512.png</code></li>
+                        <li><code>apple-touch-icon.png</code></li>
+                    </ul>
+                </li>
+                <li>Refresh your app and try "Add to Home Screen" again!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#0F2027');
+            gradient.addColorStop(0.5, '#203A43');
+            gradient.addColorStop(1, '#2C5364');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Draw "P" letter
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = `bold ${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('P', size / 2, size / 2);
+            
+            // Small "X" in corner
+            ctx.fillStyle = '#4A90E2';
+            ctx.font = `bold ${size * 0.2}px Arial`;
+            ctx.fillText('X', size * 0.75, size * 0.25);
+        }
+
+        function generateIcons() {
+            drawIcon(document.getElementById('icon192'), 192);
+            drawIcon(document.getElementById('icon512'), 512);
+            drawIcon(document.getElementById('icon180'), 180);
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function generateAndDownload() {
+            generateIcons();
+            setTimeout(() => {
+                downloadCanvas(document.getElementById('icon192'), 'icon-192x192.png');
+                setTimeout(() => {
+                    downloadCanvas(document.getElementById('icon512'), 'icon-512x512.png');
+                    setTimeout(() => {
+                        downloadCanvas(document.getElementById('icon180'), 'apple-touch-icon.png');
+                        alert('✅ All icons downloaded! Now move them to public/icons/ folder and refresh your app.');
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+
+        // Generate on load
+        window.onload = generateIcons;
+    </script>
+</body>
+</html>
+
+

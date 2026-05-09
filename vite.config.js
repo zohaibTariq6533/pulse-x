@@ -10,4 +10,11 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    server: {
+        host: '0.0.0.0', // Allow external connections (for mobile testing)
+        port: 5173, // Default Vite port
+        hmr: {
+            host: 'localhost', // HMR host (change to your IP for mobile HMR)
+        },
+    },
 });

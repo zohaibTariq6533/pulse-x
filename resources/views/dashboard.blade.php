@@ -2,7 +2,7 @@
 @section('content')
 
 {{-- Main Page Structure --}}
-<main style="background-image: linear-gradient(to bottom, #0F2027, #203A43, #2C5364);" class="min-h-screen">
+<main style="background-image: linear-gradient(to bottom, #0F2027, #203A43, #2C5364);" class="min-h-screen pb-20">
     <div class="max-w-xl mx-auto px-5 py-8 text-white space-y-6">
 
         {{-- 1. Header Section --}}

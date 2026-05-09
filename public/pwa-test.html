@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Install Test - Pulse-X</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 PWA Install Prompt Diagnostic Test</h1>
+    <p>This page will check if your PWA is ready for installation.</p>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Manual Actions</h2>
+        <button onclick="checkInstallability()">Run Full Test</button>
+        <button onclick="checkManifest()">Check Manifest</button>
+        <button onclick="checkServiceWorker()">Check Service Worker</button>
+        <button onclick="triggerInstall()">Trigger Install (if available)</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Output</h2>
+        <div id="console-output" style="background: #000; color: #0f0; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        let deferredPrompt = null;
+        let installButton = null;
+
+        // Console logger
+        function log(message, type = 'info') {
+            const output = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#0f0',
+                error: '#f00',
+                warning: '#ff0',
+                success: '#0f0'
+            };
+            output.innerHTML += `<div style="color: ${colors[type] || '#0f0'}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+
+        // Check installability
+        async function checkInstallability() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Running tests...</h3>';
+            log('Starting PWA installability check...', 'info');
+
+            let allPassed = true;
+
+            // 1. Check HTTPS/localhost
+            const isSecure = location.protocol === 'https:' || 
+                            location.hostname === 'localhost' || 
+                            location.hostname === '127.0.0.1' ||
+                            location.hostname.includes('.local');
+            const secureStatus = isSecure ? 'success' : 'error';
+            results.innerHTML += `<div class="status ${secureStatus}">
+                <strong>1. Secure Context:</strong> ${isSecure ? '✅ Yes' : '❌ No'} 
+                (${location.protocol}//${location.hostname})
+            </div>`;
+            if (!isSecure) {
+                log('❌ Not on HTTPS or localhost - service workers require secure context', 'error');
+                allPassed = false;
+            } else {
+                log('✅ Secure context detected', 'success');
+            }
+
+            // 2. Check Service Worker support
+            const hasSW = 'serviceWorker' in navigator;
+            const swStatus = hasSW ? 'success' : 'error';
+            results.innerHTML += `<div class="status ${swStatus}">
+                <strong>2. Service Worker Support:</strong> ${hasSW ? '✅ Yes' : '❌ No'}
+            </div>`;
+            if (!hasSW) {
+                log('❌ Service Worker not supported in this browser', 'error');
+                allPassed = false;
+            } else {
+                log('✅ Service Worker supported', 'success');
+            }
+
+            // 3. Check Manifest
+            try {
+                const manifestResponse = await fetch('/manifest.json');
+                if (!manifestResponse.ok) {
+                    throw new Error(`HTTP ${manifestResponse.status}`);
+                }
+                const manifest = await manifestResponse.json();
+                log('✅ Manifest loaded successfully', 'success');
+                
+                // Check manifest requirements
+                const requiredFields = ['name', 'short_name', 'start_url', 'display', 'icons'];
+                const missingFields = requiredFields.filter(field => !manifest[field]);
+                
+                if (missingFields.length > 0) {
+                    results.innerHTML += `<div class="status error">
+                        <strong>3. Manifest:</strong> ❌ Missing fields: ${missingFields.join(', ')}
+                    </div>`;
+                    log(`❌ Manifest missing fields: ${missingFields.join(', ')}`, 'error');
+                    allPassed = false;
+                } else {
+                    results.innerHTML += `<div class="status success">
+                        <strong>3. Manifest:</strong> ✅ Valid (Name: ${manifest.name}, Icons: ${manifest.icons.length})
+                    </div>`;
+                    log(`✅ Manifest valid - Name: ${manifest.name}, Icons: ${manifest.icons.length}`, 'success');
+                }
+
+                // Check icons
+                let iconErrors = 0;
+                for (const icon of manifest.icons) {
+                    try {
+                        const iconResponse = await fetch(icon.src);
+                        if (!iconResponse.ok) {
+                            iconErrors++;
+                            log(`⚠️ Icon missing: ${icon.src}`, 'warning');
+                        } else {
+                            log(`✅ Icon found: ${icon.src}`, 'success');
+                        }
+                    } catch (e) {
+                        iconErrors++;
+                        log(`❌ Icon error: ${icon.src} - ${e.message}`, 'error');
+                    }
+                }
+                
+                if (iconErrors > 0) {
+                    results.innerHTML += `<div class="status warning">
+                        <strong>Icons:</strong> ⚠️ ${iconErrors} icon(s) missing (may prevent install prompt)
+                    </div>`;
+                } else {
+                    results.innerHTML += `<div class="status success">
+                        <strong>Icons:</strong> ✅ All icons accessible
+                    </div>`;
+                }
+
+            } catch (e) {
+                results.innerHTML += `<div class="status error">
+                    <strong>3. Manifest:</strong> ❌ Error: ${e.message}
+                </div>`;
+                log(`❌ Manifest error: ${e.message}`, 'error');
+                allPassed = false;
+            }
+
+            // 4. Check Service Worker Registration
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    results.innerHTML += `<div class="status success">
+                        <strong>4. Service Worker:</strong> ✅ Registered (Scope: ${registration.scope})
+                    </div>`;
+                    log(`✅ Service Worker registered - Scope: ${registration.scope}`, 'success');
+                    
+                    // Check if active
+                    if (registration.active) {
+                        log('✅ Service Worker is active', 'success');
+                    } else if (registration.installing) {
+                        log('⚠️ Service Worker is installing...', 'warning');
+                    } else if (registration.waiting) {
+                        log('⚠️ Service Worker is waiting...', 'warning');
+                    }
+                } else {
+                    results.innerHTML += `<div class="status error">
+                        <strong>4. Service Worker:</strong> ❌ Not registered
+                    </div>`;
+                    log('❌ Service Worker not registered', 'error');
+                    allPassed = false;
+                }
+            } catch (e) {
+                results.innerHTML += `<div class="status error">
+                    <strong>4. Service Worker:</strong> ❌ Error: ${e.message}
+                </div>`;
+                log(`❌ Service Worker error: ${e.message}`, 'error');
+                allPassed = false;
+            }
+
+            // 5. Check Install Prompt
+            results.innerHTML += `<div class="status info">
+                <strong>5. Install Prompt:</strong> ⏳ Waiting for browser event...
+            </div>`;
+            log('⏳ Waiting for beforeinstallprompt event...', 'info');
+
+            // Listen for install prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                results.innerHTML += `<div class="status success">
+                    <strong>5. Install Prompt:</strong> ✅ Available! (Event received)
+                </div>`;
+                log('✅ Install prompt event received!', 'success');
+                allPassed = true;
+                
+                // Show install button
+                showInstallButton();
+            }, { once: true });
+
+            // Check if already installed
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                results.innerHTML += `<div class="status info">
+                    <strong>6. Installation Status:</strong> ℹ️ App already installed (running in standalone mode)
+                </div>`;
+                log('ℹ️ App is already installed (standalone mode)', 'info');
+            }
+
+            // Summary
+            setTimeout(() => {
+                if (allPassed && deferredPrompt) {
+                    results.innerHTML += `<div class="status success" style="margin-top: 20px; font-size: 18px; padding: 15px;">
+                        <strong>✅ PWA is Installable!</strong><br>
+                        The install prompt should appear in your browser's address bar, or use the button below.
+                    </div>`;
+                } else if (allPassed) {
+                    results.innerHTML += `<div class="status warning" style="margin-top: 20px; font-size: 18px; padding: 15px;">
+                        <strong>⚠️ PWA Setup is Correct, but Install Prompt Not Yet Available</strong><br>
+                        <small>This is normal. Browsers may require:<br>
+                        - Multiple visits to the site<br>
+                        - User interaction (click, scroll, etc.)<br>
+                        - Meeting all PWA criteria (which you do!)<br><br>
+                        Try refreshing the page or visiting different pages on your site.</small>
+                    </div>`;
+                } else {
+                    results.innerHTML += `<div class="status error" style="margin-top: 20px; font-size: 18px; padding: 15px;">
+                        <strong>❌ PWA Not Ready for Installation</strong><br>
+                        <small>Please fix the errors above and try again.</small>
+                    </div>`;
+                }
+            }, 2000);
+        }
+
+        // Check manifest only
+        async function checkManifest() {
+            try {
+                const response = await fetch('/manifest.json');
+                const manifest = await response.json();
+                log('Manifest:', 'info');
+                console.log(manifest);
+                alert('Manifest loaded! Check console for details.');
+            } catch (e) {
+                log(`Manifest error: ${e.message}`, 'error');
+                alert('Error loading manifest: ' + e.message);
+            }
+        }
+
+        // Check service worker only
+        async function checkServiceWorker() {
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    log(`Service Worker registered - Scope: ${registration.scope}`, 'success');
+                    alert('Service Worker is registered!');
+                } else {
+                    log('Service Worker not registered', 'error');
+                    alert('Service Worker not registered. Try refreshing the page.');
+                }
+            } catch (e) {
+                log(`Service Worker error: ${e.message}`, 'error');
+                alert('Error: ' + e.message);
+            }
+        }
+
+        // Trigger install
+        function triggerInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        log('✅ User accepted install prompt', 'success');
+                        alert('Installation accepted!');
+                    } else {
+                        log('❌ User dismissed install prompt', 'warning');
+                        alert('Installation dismissed.');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                log('❌ Install prompt not available', 'error');
+                alert('Install prompt not available. Make sure you meet all PWA requirements.');
+            }
+        }
+
+        // Show install button
+        function showInstallButton() {
+            if (!installButton) {
+                installButton = document.createElement('button');
+                installButton.textContent = '📱 Install Pulse-X App';
+                installButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #28a745; font-size: 16px; padding: 15px 25px;';
+                installButton.onclick = triggerInstall;
+                document.body.appendChild(installButton);
+                log('✅ Install button created', 'success');
+            }
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            log('Page loaded, starting diagnostic...', 'info');
+            setTimeout(checkInstallability, 500);
+        });
+
+        // Listen for install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            log('✅ Install prompt event received!', 'success');
+            showInstallButton();
+        });
+    </script>
+</body>
+</html>
+
+

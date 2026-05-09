@@ -9,3 +9,49 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* PWA and Mobile Enhancements */
+@supports (padding: max(0px)) {
+    .pb-safe {
+        padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+    
+    .pt-safe {
+        padding-top: max(0.5rem, env(safe-area-inset-top));
+    }
+    
+    .px-safe {
+        padding-left: max(0.5rem, env(safe-area-inset-left));
+        padding-right: max(0.5rem, env(safe-area-inset-right));
+    }
+}
+
+/* Touch-friendly tap targets */
+@media (hover: none) and (pointer: coarse) {
+    button, a, input, select, textarea {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Prevent text size adjustment on iOS */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Smooth scrolling for better mobile experience */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Improve form inputs on mobile */
+input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+}
+
+@media (max-width: 640px) {
+    input, textarea, select {
+        font-size: 16px; /* Prevents zoom on iOS when focusing */
+    }
+}

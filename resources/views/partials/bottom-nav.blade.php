@@ -5,8 +5,8 @@
 @endphp
 
 @if($showNav)
-<footer class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-10 p-2"
-        style="background-color: transparent;">
+<footer class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-10 p-2 pb-safe"
+        style="background-color: transparent; padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
     <nav class="flex justify-around py-3 rounded-full border border-opacity-10 shadow-2xl"
          style="background-color: rgba(254, 180, 123, 0.2); border-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);">
         
